@@ -153,12 +153,14 @@ object SampleSheet {
 
   /** Validate that the sample ids are unique, and that the combination of sample name and library id are unique. */
   private def validateSamples(samples: Seq[Sample]): Unit = {
+    def sampleKey(s: Sample): String = s"${s.sampleName} ${s.libraryId}" + s.lane.map(" " + _).getOrElse("")
+
     // Validate some properties for a sample sheet
     require(samples.map(_.sampleId).toSet.size == samples.length,
       "Sample identifiers were not unique: " + samples.groupBy(_.sampleId).filter(_._2.length > 1).keys.mkString(", "))
-    require(samples.map(s => s"${s.sampleName} ${s.libraryId}").toSet.size == samples.length,
+    require(samples.map(sampleKey).toSet.size == samples.length,
       "Sample name and library identifier combinations were not unique: " +
-        samples.groupBy(s => s"${s.sampleName} ${s.libraryId}").filter(_._2.length > 1).keys.mkString(", "))
+        samples.groupBy(sampleKey).filter(_._2.length > 1).keys.mkString(", "))
   }
 }
 
